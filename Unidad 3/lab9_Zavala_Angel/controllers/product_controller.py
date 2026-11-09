@@ -1,4 +1,6 @@
 """Controlador: lista de productos y exportación de reportes (polimorfismo)."""
+import math
+
 from exporters import (
     ExportadorCSV,
     ExportadorTXT,
@@ -26,7 +28,69 @@ class ProductController:
             command=lambda: self.generar_reporte(self.vista.obtener_formato())
         )
 
+        self.vista.btn_agregar.config(command=self.agregar_producto)
+
         self.cargar_productos()
+
+    def agregar_producto(self):
+        nombre, precio_txt, stock_txt = self.vista.obtener_datos_producto()
+
+        if not nombre or not precio_txt or not stock_txt:
+            self.vista.mostrar_mensaje(
+                "Campos vacíos",
+                "Nombre, precio y stock son obligatorios.",
+                "error"
+            )
+            return
+
+        if len(nombre) > 100:
+            self.vista.mostrar_mensaje(
+                "Nombre muy largo",
+                "El nombre puede tener máximo 100 caracteres.",
+                "error"
+            )
+            return
+
+        try:
+            precio = float(precio_txt)
+            if not math.isfinite(precio) or precio < 0:
+                raise ValueError
+        except ValueError:
+            self.vista.mostrar_mensaje(
+                "Precio inválido",
+                "Ingresa un precio numérico mayor o igual a 0 (ej. 18.50).",
+                "error"
+            )
+            return
+
+        try:
+            stock = int(stock_txt)
+            if stock < 0:
+                raise ValueError
+        except ValueError:
+            self.vista.mostrar_mensaje(
+                "Stock inválido",
+                "Ingresa un stock entero mayor o igual a 0.",
+                "error"
+            )
+            return
+
+        resultado = self.modelo.registrar_producto(nombre, precio, stock)
+
+        if resultado == "ok":
+            self.vista.mostrar_mensaje(
+                "Producto agregado",
+                f"'{nombre}' se registró correctamente."
+            )
+            self.vista.limpiar_formulario()
+            self.cargar_productos()
+        else:
+            self.vista.mostrar_mensaje(
+                "Error",
+                "No fue posible registrar el producto. "
+                "Verifica la conexión con PostgreSQL.",
+                "error"
+            )
 
     def cargar_productos(self):
         productos = self.modelo.obtener_todos()

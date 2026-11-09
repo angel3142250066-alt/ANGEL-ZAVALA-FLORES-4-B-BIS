@@ -17,7 +17,7 @@ class ProductsView:
         self.ventana = tk.Toplevel(root)
 
         self.ventana.title("Inventario de productos")
-        self.ventana.geometry("620x440")
+        self.ventana.geometry("620x560")
         self.ventana.configure(bg="#FDF2E9")
         self.ventana.resizable(False, False)
 
@@ -26,9 +26,46 @@ class ProductsView:
             text="INVENTARIO DE PRODUCTOS",
             font=("Verdana", 16, "bold"),
             bg="#FDF2E9",
-            fg="#873600"
+            fg="#00870D"
         )
         self.titulo.pack(pady=14)
+
+        # --- Formulario: nuevo producto ---
+        self.marco_form = tk.LabelFrame(
+            self.ventana,
+            text=" Nuevo producto ",
+            bg="#FDF2E9",
+            fg="#00870D",
+            font=("Verdana", 10, "bold"),
+            padx=10,
+            pady=8
+        )
+        self.marco_form.pack(padx=16, pady=6, fill="x")
+
+        etiqueta = {"bg": "#FDF2E9", "fg": "#873600", "font": ("Verdana", 9, "bold")}
+
+        tk.Label(self.marco_form, text="Nombre:", **etiqueta).grid(row=0, column=0, sticky="w")
+        tk.Label(self.marco_form, text="Precio:", **etiqueta).grid(row=0, column=1, sticky="w")
+        tk.Label(self.marco_form, text="Stock:", **etiqueta).grid(row=0, column=2, sticky="w")
+
+        self.entry_nombre = tk.Entry(self.marco_form, width=24, font=("Verdana", 10))
+        self.entry_nombre.grid(row=1, column=0, padx=(0, 8), pady=2)
+
+        self.entry_precio = tk.Entry(self.marco_form, width=10, font=("Verdana", 10))
+        self.entry_precio.grid(row=1, column=1, padx=(0, 8), pady=2)
+
+        self.entry_stock = tk.Entry(self.marco_form, width=8, font=("Verdana", 10))
+        self.entry_stock.grid(row=1, column=2, padx=(0, 8), pady=2)
+
+        self.btn_agregar = tk.Button(
+            self.marco_form,
+            text="Agregar producto",
+            bg="#00870D",
+            fg="white",
+            font=("Verdana", 9, "bold"),
+            cursor="hand2"
+        )
+        self.btn_agregar.grid(row=1, column=3, padx=(4, 0), pady=2)
 
         # --- Área de controles: formato + botón exportar ---
         self.marco_controles = tk.Frame(self.ventana, bg="#FDF2E9")
@@ -39,7 +76,7 @@ class ProductsView:
             text="Formato:",
             font=("Verdana", 10, "bold"),
             bg="#FDF2E9",
-            fg="#873600"
+            fg="#00870D"
         )
         self.lbl_formato.pack(side="left", padx=(0, 6))
 
@@ -90,6 +127,19 @@ class ProductsView:
         scroll.pack(side="right", fill="y")
 
     # ---------- Métodos que usa el Controlador ----------
+    def obtener_datos_producto(self):
+        """Devuelve (nombre, precio, stock) como texto, tal cual se escribió."""
+        return (
+            self.entry_nombre.get().strip(),
+            self.entry_precio.get().strip(),
+            self.entry_stock.get().strip(),
+        )
+
+    def limpiar_formulario(self):
+        for entrada in (self.entry_nombre, self.entry_precio, self.entry_stock):
+            entrada.delete(0, tk.END)
+        self.entry_nombre.focus_set()
+
     def obtener_formato(self):
         """Devuelve el formato elegido en el Combobox ('CSV', 'TXT', ...)."""
         return self.combo_formato.get()
